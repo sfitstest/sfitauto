@@ -28,7 +28,7 @@ class IncorrectLookupParameters(Exception):
 class FilterPlugin(BaseAdminPlugin):
     list_filter = ()
     search_fields = ()
-    free_query_filter = True
+    free_query_filter = False
 
     def lookup_allowed(self, lookup, value):
         model = self.model

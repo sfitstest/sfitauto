@@ -34,6 +34,7 @@ except:
 class ExportMenuPlugin(BaseAdminPlugin):
 
     list_export = ('xlsx', 'xls', 'csv','json','xml')
+    #list_export = ()
     export_names = {'xlsx': 'Excel 2007', 'xls': 'Excel', 'csv': 'CSV',
                     'xml': 'asp2636', 'json': 'asp636'}
 
@@ -61,6 +62,7 @@ class ExportPlugin(BaseAdminPlugin):
 
     def init_request(self, *args, **kwargs):
         return self.request.GET.get('_do_') == 'export'
+
 
     def _format_value(self, o):
         if (o.field is None and getattr(o.attr, 'boolean', False)) or \

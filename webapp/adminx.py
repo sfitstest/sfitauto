@@ -6,6 +6,7 @@ import xlrd
 from .models import MarginRate
 from .models import FuRateSetting
 from .models import OpRateSetting
+from .models import UserProfile
 from xadmin import views
 
 
@@ -16,6 +17,7 @@ class PlatformSetting(object):
     menu_style = "accordion"
 
 
+
 class MarginRateSettingReg(object):
     #列表种展示的
     list_display=["ExchangeId","InstrumentId","SpHeMarks","LSmarks","InvestorMarginRateByMoney","InvestorMarginRateByAmount","ExchangeMarginRateByMoney","ExchangeMarginRateByAmount","InvestorOpMarginRateByMoney","InvestorOpMarginRateByAmount"]
@@ -24,11 +26,12 @@ class MarginRateSettingReg(object):
     #根据点击排序
     ordering = ['-ExchangeId']
     #指定只读（不可修改）的字段
-    readonly_fields = ['InstrumentId']
+    readonly_fields = ()
     #可直接在列表页编辑的字段
     list_editable = ['ExchangeId','SpHeMarks', 'LSmarks']
-
-    def post(self, request, *args, **kwargs):
+    import_excel = True
+    search_fields = ()
+    def post(self, request, *args):
         if 'excel' in request.FILES:
             wb = xlrd.open_workbook(filename=None, file_contents=request.FILES['excel'].read())
             curr_sheet = wb.sheet_by_name('data')
@@ -65,7 +68,7 @@ class MarginRateSettingReg(object):
             MarginRate.objects.bulk_create(sql_list)
 
 
-        return super(MarginRateSettingReg, self).post(request, args, kwargs)
+        return super(MarginRateSettingReg, self).post(request, args)
 
 
 class FuRateSettingReg(object):
@@ -76,14 +79,15 @@ class FuRateSettingReg(object):
     #根据点击排序
     ordering = ['-InvestorId']
     #指定只读（不可修改）的字段
-    readonly_fields = ['InstrumentId']
+    readonly_fields = ()
     #可直接在列表页编辑的字段
     list_editable = ['InvestorId','ExchangeId','SpHeMarks', 'OCmarks']
 
     #import_excel位True，excel导入,会覆盖插件中(plugins/excel.py)import_excel的默认值
     import_excel = True
+    search_fields = ()
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args):
         if 'excel' in request.FILES:
             wb = xlrd.open_workbook(filename=None, file_contents=request.FILES['excel'].read())
             curr_sheet = wb.sheet_by_name('data')
@@ -115,7 +119,7 @@ class FuRateSettingReg(object):
                 )
                 sql_list.append(sql)
             FuRateSetting.objects.bulk_create(sql_list)
-        return super(FuRateSettingReg, self).post(request, args, kwargs)
+        return super(FuRateSettingReg, self).post(request, args)
 
 
 class OpRateSettingReg(object):
@@ -126,14 +130,22 @@ class OpRateSettingReg(object):
     #根据点击排序
     ordering = ['-InvestorId']
     #指定只读（不可修改）的字段
-    readonly_fields = ['InstrumentId']
+    readonly_fields = ()
     #可直接在列表页编辑的字段
     list_editable = ['InvestorId','ExchangeId','SpHeMarks', 'OCmarks']
 
     #import_excel位True，excel导入,会覆盖插件中(plugins/excel.py)import_excel的默认值
     import_excel = True
+    list_export = ()
+    search_fields = ()
+    #list_filter = ()
 
-    def post(self, request, *args, **kwargs):
+
+     #menu_style = None
+
+
+
+    def post(self, request, *args):
         if 'excel' in request.FILES:
             wb = xlrd.open_workbook(filename=None, file_contents=request.FILES['excel'].read())
             curr_sheet = wb.sheet_by_name('data')
@@ -167,7 +179,7 @@ class OpRateSettingReg(object):
             OpRateSetting.objects.bulk_create(sql_list)
 
 
-        return super(OpRateSettingReg, self).post(request, args, kwargs)
+        return super(OpRateSettingReg, self).post(request, args)
 
 xadmin.site.register(MarginRate,MarginRateSettingReg)
 xadmin.site.register(FuRateSetting,FuRateSettingReg)

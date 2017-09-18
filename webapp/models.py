@@ -65,5 +65,5 @@ class OpRateSetting(models.Model):
     insert_time = models.DateTimeField(default=datetime.now)
 
     class Meta:
-        verbose_name = u"期货手续费费率"
+        verbose_name = u"期权手续费费率"
         verbose_name_plural = verbose_name

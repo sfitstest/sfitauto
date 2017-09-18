@@ -30,7 +30,7 @@ from django.views.generic import View
 from collections import OrderedDict
 from xadmin.util import static, json, vendor, sortkeypicker
 
-from xadmin.models import Log
+#from xadmin.models import Log
 
 csrf_protect_m = method_decorator(csrf_protect)
 
