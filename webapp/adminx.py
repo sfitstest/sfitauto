@@ -17,10 +17,9 @@ class PlatformSetting(object):
     menu_style = "accordion"
 
 
-
 class MarginRateSettingReg(object):
     #列表种展示的
-    list_display=["ExchangeId","InstrumentId","SpHeMarks","LSmarks","InvestorMarginRateByMoney","InvestorMarginRateByAmount","ExchangeMarginRateByMoney","ExchangeMarginRateByAmount","InvestorOpMarginRateByMoney","InvestorOpMarginRateByAmount"]
+    list_display=["ExchangeId","InstrumentId","SpHeMarks","LSmarks","InvestorMarginRateByMoney","InvestorMarginRateByAmount","ExchangeMarginRateByMoney","ExchangeMarginRateByAmount","InvestorOpMarginRateAjByMoney","InvestorOpMarginRateAjByAmount"]
     search_fields = ['ExchangeId','InstrumentId','SpHeMarks', 'LSmarks']
     list_filter = ['ExchangeId','InstrumentId','SpHeMarks', 'LSmarks']
     #根据点击排序
@@ -61,8 +60,8 @@ class MarginRateSettingReg(object):
                     InvestorMarginRateByAmount=int(col[5]),
                     ExchangeMarginRateByMoney=col[6],
                     ExchangeMarginRateByAmount=int(col[7]),
-                    InvestorOpMarginRateByMoney=col[7],
-                    InvestorOpMarginRateByAmount=int(col[8]),
+                    InvestorOpMarginRateAjByMoney=col[8],
+                    InvestorOpMarginRateAjByAmount=int(col[9]),
                 )
                 sql_list.append(sql)
             MarginRate.objects.bulk_create(sql_list)

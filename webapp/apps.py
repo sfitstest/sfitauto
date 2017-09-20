@@ -5,6 +5,6 @@ from django.apps import AppConfig
 
 
 class WebappConfig(AppConfig):
-    name = 'webapp'
+    name = 'CTP1'
     verbose_name=u"基础数据"
 

@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+
 import io
 import datetime
 import sys
+import cx_Oracle
 from future.utils import iteritems
 
 from django.http import HttpResponse
@@ -36,7 +39,7 @@ class ExportMenuPlugin(BaseAdminPlugin):
     list_export = ('xlsx', 'xls', 'csv','json','xml')
     #list_export = ()
     export_names = {'xlsx': 'Excel 2007', 'xls': 'Excel', 'csv': 'CSV',
-                    'xml': 'asp2636', 'json': 'asp636'}
+                    'xml': 'XML', 'json': 'JSON'}
 
     def init_request(self, *args, **kwargs):
         self.list_export = [
@@ -84,6 +87,7 @@ class ExportPlugin(BaseAdminPlugin):
 
     def _get_datas(self, context):
         rows = context['results']
+       # print rows
 
         new_rows = [[self._format_value(o) for o in
             filter(lambda c:getattr(c, 'export', False), r.cells)] for r in rows]
@@ -91,7 +95,9 @@ class ExportPlugin(BaseAdminPlugin):
         return new_rows
 
     def get_xlsx_export(self, context):
+
         datas = self._get_datas(context)
+        print datas
         output = io.BytesIO()
         export_header = (
             self.request.GET.get('export_xlsx_header', 'off') == 'on')
@@ -186,6 +192,7 @@ class ExportPlugin(BaseAdminPlugin):
         return '\r\n'.join(stream)
 
     def _to_xml(self, xml, data):
+        print data
         if isinstance(data, (list, tuple)):
             for item in data:
                 xml.startElement("row", {})
@@ -204,6 +211,56 @@ class ExportPlugin(BaseAdminPlugin):
         results = self._get_objects(context)
         stream = io.StringIO()
 
+        print results
+        tradingday='20150502'
+        brokerid='2500'
+        investorRange='1'
+        ratioattr='0'
+        dic_mar = {}
+        dic_exch_mar = {}
+        dic_maraj = {}
+        for it in results:
+            key = it["InstrumentId"]
+            if key not in dic_mar:
+                dic_mar[key] = [0, 0, 0, 0, 0, 0, 0, 0]
+            if key not in dic_exch_mar:
+                dic_exch_mar[key] = [0, 0, 0, 0, 0, 0, 0, 0]
+            if key not in dic_maraj:
+                dic_maraj[key] = [0, 0, 0, 0, 0, 0, 0, 0]
+
+            if (it["SpHeMarks"] == '1') and (it["LSmarks"] == '0'):
+                # print xx[0][2],xx[0][3]
+                dic_mar[key][0] = it['InvestorMarginRateByMoney']
+                dic_mar[key][1] = it['InvestorMarginRateByAmount']
+                dic_exch_mar[key][0] = it['ExchangeMarginRateByMoney']
+                dic_exch_mar[key][1] = it['ExchangeMarginRateByAmount']
+                dic_maraj[key][0] = it['InvestorOpMarginRateAjByMoney']
+                dic_maraj[key][1] = it['InvestorOpMarginRateAjByAmount']
+            elif (it["SpHeMarks"] == '1') and (it["LSmarks"] == '1'):
+                dic_mar[key][2] = it['InvestorMarginRateByMoney']
+                dic_mar[key][3] = it['InvestorMarginRateByAmount']
+                dic_exch_mar[key][2] = it['ExchangeMarginRateByMoney']
+                dic_exch_mar[key][3] = it['ExchangeMarginRateByAmount']
+                dic_maraj[key][2] = it['InvestorOpMarginRateAjByMoney']
+                dic_maraj[key][3] = it['InvestorOpMarginRateAjByAmount']
+            elif (it["SpHeMarks"] == '3') and (it["LSmarks"] == '0'):
+                dic_mar[key][4] = it['InvestorMarginRateByMoney']
+                dic_mar[key][5] = it['InvestorMarginRateByAmount']
+                dic_exch_mar[key][4] = it['ExchangeMarginRateByMoney']
+                dic_exch_mar[key][5] = it['ExchangeMarginRateByAmount']
+                dic_maraj[key][4] = it['InvestorOpMarginRateAjByMoney']
+                dic_maraj[key][5] = it['InvestorOpMarginRateAjByAmount']
+            elif (it["SpHeMarks"] == '3') and (it["LSmarks"] == '1'):
+                dic_mar[key][6] = it['InvestorMarginRateByMoney']
+                dic_mar[key][7] = it['InvestorMarginRateByAmount']
+                dic_exch_mar[key][6] = it['ExchangeMarginRateByMoney']
+                dic_exch_mar[key][7] = it['ExchangeMarginRateByAmount']
+                dic_maraj[key][6] = it['InvestorOpMarginRateAjByMoney']
+                dic_maraj[key][7] = it['InvestorOpMarginRateAjByAmount']
+        print dic_mar
+        print dic_exch_mar
+        print dic_maraj
+
         xml = SimplerXMLGenerator(stream, "utf-8")
         xml.startDocument()
         xml.startElement("objects", {})
@@ -217,6 +274,7 @@ class ExportPlugin(BaseAdminPlugin):
 
     def get_json_export(self, context):
         results = self._get_objects(context)
+        print results
         return json.dumps({'objects': results}, ensure_ascii=False,
                           indent=(self.request.GET.get('export_json_format', 'off') == 'on') and 4 or None)
 

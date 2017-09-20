@@ -27,8 +27,8 @@ class MarginRate(models.Model):
     InvestorMarginRateByAmount = models.CharField(max_length=1, default="")
     ExchangeMarginRateByMoney = models.DecimalField(max_digits=8, decimal_places=5)
     ExchangeMarginRateByAmount = models.CharField(max_length=1, default="")
-    InvestorOpMarginRateByMoney = models.DecimalField(max_digits=8, decimal_places=5)
-    InvestorOpMarginRateByAmount = models.CharField(max_length=1, default="")
+    InvestorOpMarginRateAjByMoney = models.DecimalField(max_digits=8, decimal_places=5)
+    InvestorOpMarginRateAjByAmount = models.CharField(max_length=1, default="")
 
     class Meta:
         verbose_name = u"保证金率"
