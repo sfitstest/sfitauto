@@ -1,0 +1,1 @@
+default_app_config = "CTP2.apps.Ctp2Config"

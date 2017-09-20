@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'webapp',
+    'CTP2',
     'xadmin',
     'crispy_forms',
 ]
@@ -84,9 +85,7 @@ WSGI_APPLICATION = 'Caltest.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "cal",
         'USER': "root",
-        'PASSWORD': "li_colin99",
         'HOST': "127.0.0.1"
     }
 }
