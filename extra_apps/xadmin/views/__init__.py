@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
-from .base import BaseAdminPlugin, BaseAdminView, CommAdminView, ModelAdminView, filter_hook, csrf_protect_m
-from .base import BaseAdminObject
+from .base import BaseAdminPlugin, BaseAdminView, CommAdminView, ModelAdminView, filter_hook, csrf_protect_m, BaseAdminObject
+
 from .list import ListAdminView
 from .edit import CreateAdminView, UpdateAdminView, ModelFormAdminView
 from .delete import DeleteAdminView

@@ -72,6 +72,7 @@ def filter_hook(func):
             return func(self, *args, **kwargs)
 
         if self.plugins:
+            print self.plugins
             filters = [(getattr(getattr(p, tag), 'priority', 10), getattr(p, tag))
                        for p in self.plugins if callable(getattr(p, tag, None))]
             filters = [f for p, f in sorted(filters, key=lambda x:x[0])]
@@ -176,6 +177,7 @@ class BaseAdminObject(object):
         if remove is None:
             remove = []
         p = dict(self.request.GET.items()).copy()
+        print p
         arr_keys = list(p.keys())
         for r in remove:
             for k in arr_keys:

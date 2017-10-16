@@ -2,8 +2,7 @@
 PLUGINS = (
     'actions', 
     'filters', 
-    'bookmark', 
-    'export', 
+    'bookmark',
     'layout', 
     'refresh',
     'details',
@@ -11,7 +10,7 @@ PLUGINS = (
     'relate', 
     'chart', 
     'ajax', 
-    'relfield', 
+    'relfield',
     'inline', 
     'topnav', 
     'portal', 
@@ -30,8 +29,9 @@ PLUGINS = (
     'sortablelist',
 	'importexport',
     'excel',
+    'export_oracle'
 )
-
+# 'export_oracle',
 
 
 def register_builtin_plugins(site):

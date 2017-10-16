@@ -137,6 +137,7 @@ class UserWidget(models.Model):
         verbose_name = _(u'User Widget')
         verbose_name_plural = _('User Widgets')
 
+
 @python_2_unicode_compatible
 class Log(models.Model):
     action_time = models.DateTimeField(

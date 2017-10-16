@@ -34,12 +34,20 @@ except:
     has_xlsxwriter = False
 
 
+# conn = cx_Oracle.connect('settlement', 'settlement1111', '172.19.124.13/asp636')
+# cursor = conn.cursor()
+#
+#
+# def insert_oracle(va, t_name):
+#     sql = 'insert into %s values %s' % (t_name, va)
+#     cursor.execute(sql)
+
+
 class ExportMenuPlugin(BaseAdminPlugin):
 
     list_export = ('xlsx', 'xls', 'csv','json','xml')
-    #list_export = ()
     export_names = {'xlsx': 'Excel 2007', 'xls': 'Excel', 'csv': 'CSV',
-                    'xml': 'XML', 'json': 'JSON'}
+                    'xml': 'Xml', 'json': 'Json'}
 
     def init_request(self, *args, **kwargs):
         self.list_export = [
@@ -66,8 +74,8 @@ class ExportPlugin(BaseAdminPlugin):
     def init_request(self, *args, **kwargs):
         return self.request.GET.get('_do_') == 'export'
 
-
     def _format_value(self, o):
+        print o.field,o.attr,o.text
         if (o.field is None and getattr(o.attr, 'boolean', False)) or \
            (o.field and isinstance(o.field, (BooleanField, NullBooleanField))):
                 value = o.value
@@ -75,6 +83,7 @@ class ExportPlugin(BaseAdminPlugin):
             value = escape(str(o.text)[25:-7])
         else:
             value = escape(str(o.text))
+        #print value
         return value
 
     def _get_objects(self, context):
@@ -82,22 +91,25 @@ class ExportPlugin(BaseAdminPlugin):
         rows = context['results']
 
         return [dict([
-            (force_text(headers[i].text), self._format_value(o)) for i, o in
-            enumerate(filter(lambda c:getattr(c, 'export', False), r.cells))]) for r in rows]
+             (force_text(headers[i].text), self._format_value(o)) for i, o in
+             enumerate(filter(lambda c:getattr(c, 'export', False), r.cells))]) for r in rows]
 
     def _get_datas(self, context):
         rows = context['results']
-       # print rows
+        # print rows
+        # for r in rows:
+        #     xx = lambda x: getattr(x, 'export', False)
+        #     print xx(r.cells)
 
         new_rows = [[self._format_value(o) for o in
-            filter(lambda c:getattr(c, 'export', False), r.cells)] for r in rows]
+           filter(lambda c:getattr(c, 'export', False), r.cells)] for r in rows]
+        #new_rows=[[self._format_value(o) for o in r.cells] for r in rows]
+        #print new_rows
         new_rows.insert(0, [force_text(c.text) for c in context['result_headers'].cells if c.export])
         return new_rows
 
     def get_xlsx_export(self, context):
-
         datas = self._get_datas(context)
-        print datas
         output = io.BytesIO()
         export_header = (
             self.request.GET.get('export_xlsx_header', 'off') == 'on')
@@ -180,9 +192,13 @@ class ExportPlugin(BaseAdminPlugin):
         return t
 
     def get_csv_export(self, context):
+        # for i in context['results']:
+        #     print i.cells
+        #for f in context:
+            #print context[f]
         datas = self._get_datas(context)
         stream = []
-
+        print datas
         if self.request.GET.get('export_csv_header', 'off') != 'on':
             datas = datas[1:]
 
@@ -192,7 +208,6 @@ class ExportPlugin(BaseAdminPlugin):
         return '\r\n'.join(stream)
 
     def _to_xml(self, xml, data):
-        print data
         if isinstance(data, (list, tuple)):
             for item in data:
                 xml.startElement("row", {})
@@ -211,11 +226,12 @@ class ExportPlugin(BaseAdminPlugin):
         results = self._get_objects(context)
         stream = io.StringIO()
 
-        print results
-        tradingday='20150502'
-        brokerid='2500'
-        investorRange='1'
-        ratioattr='0'
+       # print results
+        tradingday = '20150502'
+        brokerid = '2500'
+        investorRange = '1'
+        ratioattr = '0'
+        t_currinsmar_name = 't_Currinstrmarginrate'
         dic_mar = {}
         dic_exch_mar = {}
         dic_maraj = {}
@@ -257,9 +273,28 @@ class ExportPlugin(BaseAdminPlugin):
                 dic_exch_mar[key][7] = it['ExchangeMarginRateByAmount']
                 dic_maraj[key][6] = it['InvestorOpMarginRateAjByMoney']
                 dic_maraj[key][7] = it['InvestorOpMarginRateAjByAmount']
-        print dic_mar
-        print dic_exch_mar
-        print dic_maraj
+        # conn = cx_Oracle.connect('settlement', 'settlement1111', '172.19.124.13/asp636')
+        # cursor = conn.cursor()
+        for k, v in dic_mar.items():
+            # pa = k.index('_')
+            # exch = k[0:pa]
+            # insrt = k[pa + 1:]
+            # print dic_mar[k][1],k[pa+1:],v[0],v[1]
+            tx = [tradingday, brokerid, 'shfe', 'cu1702', investorRange, 0004, ratioattr, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], 0,
+                  'OPN-000+001TRA']
+            vx = ''
+            for x in tx:
+                nc = str(x)
+                vx += ',' + '\'' + nc + '\''
+            values = '(' + vx.lstrip(',') + ')'
+            insert_oracle(values, t_currinsmar_name)
+        cursor.close()
+        conn.commit()
+        conn.close()
+        #print 'aha'
+        # print dic_mar
+        # print dic_exch_mar
+        # print dic_maraj
 
         xml = SimplerXMLGenerator(stream, "utf-8")
         xml.startDocument()
@@ -274,11 +309,11 @@ class ExportPlugin(BaseAdminPlugin):
 
     def get_json_export(self, context):
         results = self._get_objects(context)
-        print results
         return json.dumps({'objects': results}, ensure_ascii=False,
                           indent=(self.request.GET.get('export_json_format', 'off') == 'on') and 4 or None)
 
     def get_response(self, response, context, *args, **kwargs):
+        #print context['export_type']
         file_type = self.request.GET.get('export_type', 'csv')
         response = HttpResponse(
             content_type="%s; charset=UTF-8" % self.export_mimes[file_type])
@@ -288,6 +323,7 @@ class ExportPlugin(BaseAdminPlugin):
             file_name, file_type)).encode('utf-8')
 
         response.write(getattr(self, 'get_%s_export' % file_type)(context))
+        print response
         return response
 
     # View Methods
